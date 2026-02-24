@@ -1,35 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { getAllStarships } from './services/sw-api';
+import StarShipCard from './components/StarShipCard';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // 1️⃣ State
+  const [starships, setStarships] = useState([]);
+  const [selectedShip, setSelectedShip] = useState(null);
 
+  useEffect(() => {
+    async function fetchData() {
+      const ships = await getAllStarships();
+      setStarships(ships);
+    }
+
+    fetchData();
+  }, []);
+
+  // 3️⃣ RETURN (this is where detail render code goes)
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div>
+      <h1>STAR WARS STARSHIPS</h1>
+
+      <div className="card-container">
+        {starships.map((ship) => (
+          <StarShipCard
+            key={ship.url}
+            starship={ship}
+            onSelect={setSelectedShip}
+          />
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {/* 👇 DETAIL RENDER CODE GOES RIGHT HERE */}
+      {selectedShip && (
+        <div className="details">
+          <h2>{selectedShip.name}</h2>
+          <p>Model: {selectedShip.model}</p>
+          <p>Manufacturer: {selectedShip.manufacturer}</p>
+          <p>Cost: {selectedShip.cost_in_credits}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+export default App;
